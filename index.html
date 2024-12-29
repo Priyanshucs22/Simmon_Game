@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simon Game</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+            flex-direction: column;
+            border: 2px solid black;
+        }
+        .con, .con2 {
+            display: flex;
+            justify-content: space-around;
+            width: 300px;
+        }
+        .box {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            opacity: 0.8;
+            cursor: pointer;
+            margin:10px;
+        }
+        .box:hover {
+            opacity: 0.3;
+        }
+        .red { background-color: red; }
+        .green { background-color: green; }
+        .blue { background-color: blue; }
+        .yellow { background-color: yellow; }
+        .hidden { opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="con">
+            <div class="box red" id="red"></div>
+            <div class="box green" id="green"></div>
+        </div>
+        <div class="con2">
+            <div class="box blue" id="blue"></div>
+            <div class="box yellow" id="yellow"></div>
+        </div>
+        <h1 id="message">Press any color to start!</h1>
+    </div>
+
+    <script>
+        const red = document.getElementById('red');
+        const green = document.getElementById('green');
+        const blue = document.getElementById('blue');
+        const yellow = document.getElementById('yellow');
+        const message = document.getElementById('message');
+
+        const colors = ['red', 'green', 'blue', 'yellow'];
+        let gameSequence = [];
+        let playerSequence = [];
+        let level = 0;
+        let isGameRunning = false;
+
+        // Event listeners for each box
+        red.addEventListener('click', () => handlePlayerClick('red'));
+        green.addEventListener('click', () => handlePlayerClick('green'));
+        blue.addEventListener('click', () => handlePlayerClick('blue'));
+        yellow.addEventListener('click', () => handlePlayerClick('yellow'));
+
+        // Start the game
+        function startGame() {
+            isGameRunning = true;
+            level = 0;
+            gameSequence = [];
+            nextRound();
+        }
+
+        // Add a random color to the sequence
+        function nextRound() {
+            level++;
+            playerSequence = [];
+            message.textContent = `Level ${level}`;
+            const randomColor = colors[Math.floor(Math.random() * 4)];
+            gameSequence.push(randomColor);
+            displaySequence();
+        }
+
+        // Display the sequence to the player
+        function displaySequence() {
+            let i = 0;
+            const interval = setInterval(() => {
+                highlightBox(gameSequence[i]);
+                i++;
+                if (i >= gameSequence.length) {
+                    clearInterval(interval);
+                    message.textContent = 'Your turn!';
+                }
+            }, 1000);
+        }
+
+        // Highlight a color box
+        function highlightBox(color) {
+            const box = document.getElementById(color);
+            box.classList.add('hidden');
+            setTimeout(() => {
+                box.classList.remove('hidden');
+            }, 500);
+        }
+
+        // Handle player input
+        function handlePlayerClick(color) {
+            if (!isGameRunning) return;
+            playerSequence.push(color);
+            highlightBox(color);
+            checkPlayerInput();
+        }
+
+        // Check if player’s sequence matches the game’s sequence
+        function checkPlayerInput() {
+            const lastIndex = playerSequence.length - 1;
+            if (playerSequence[lastIndex] !== gameSequence[lastIndex]) {
+                endGame('Game Over!');
+                return;
+            }
+            if (playerSequence.length === gameSequence.length) {
+                setTimeout(nextRound, 1000);
+            }
+        }
+
+        // End the game
+        function endGame(msg) {
+            isGameRunning = false;
+            message.textContent = msg;
+            setTimeout(() => {
+                message.textContent = 'Press any color to start!';
+            }, 2000);
+        }
+
+        // Start a new game when any box is clicked
+        document.querySelector('.container').addEventListener('click', (event) => {
+            if (!isGameRunning) startGame();
+        });
+    </script>
+</body>
+</html>
